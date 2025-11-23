@@ -10,7 +10,7 @@ return (
 
 <h1 className="text-3xl font-bold text-blue-600">
 
-Tiệm Truyện Nhỏ - Web đã chạy thành công!
+Tiệm Truyện Nhỏ – Web đã chạy thành công!
 
 </h1>
 
@@ -20,4 +20,4 @@ Tiệm Truyện Nhỏ - Web đã chạy thành công!
 
 }
 
-export default App;
+export default App;```
