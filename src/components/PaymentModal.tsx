@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, CreditCard, Wallet, Lock, Copy, Check } from 'lucide-react';
 import { api } from '../api/client';
-import momoQr from '../assets/momo-qr.jpeg';
+import momoQr from '../assets/IMG_0750.jpeg';
 
 interface PaymentModalProps {
   isOpen: boolean;
