@@ -1,9 +1,0 @@
-name = "tiem-truyen-nho-backend"
-main = "src/index.ts"
-compatibility_date = "2025-01-01"
-compatibility_flags = ["nodejs_compat"]
-
-[[d1_databases]]
-binding = "DB"
-database_name = "tiem-truyen-nho-db"
-database_id = "THAY_THE_ID_DATABASE_CUA_BAN_O_DAY" # Chạy lệnh: wrangler d1 create tiem-truyen-nho-db để lấy ID
