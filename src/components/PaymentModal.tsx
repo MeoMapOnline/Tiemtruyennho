@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { X, CreditCard, Wallet, Lock, Copy, Check } from 'lucide-react';
 import { api } from '../api/client';
-import momoQr from '../assets/momo-qr.jpeg';
+
+// ĐÃ SỬA: Không import ảnh từ file nội bộ nữa để tránh lỗi build
+// import momoQr from '../assets/momo-qr.jpeg'; 
+
+// Dùng link ảnh placeholder hoặc link ảnh QR của bạn
+const MOMO_QR_URL = "https://tiemtruyennho.blogspot.com/p/vietcombank-1027269399-luu-y-nho-nap-xu.html"; 
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -83,7 +88,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, type, amou
             <>
               <div className="flex justify-center mb-4">
                 <div className="relative group">
-                  <img src={momoQr} alt="MOMO QR" className="w-48 h-48 object-contain border-2 border-pink-500 rounded-xl" />
+                  {/* Sử dụng URL ảnh thay vì biến import */}
+                  <img src={MOMO_QR_URL} alt="MOMO QR" className="w-48 h-48 object-contain border-2 border-pink-500 rounded-xl" />
                   <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
                     Quét mã để nạp
                   </div>
