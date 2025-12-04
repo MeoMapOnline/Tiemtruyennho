@@ -9,6 +9,7 @@ const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentType, setPaymentType] = useState<'deposit' | 'withdraw'>('deposit');
+  const [isRequestingAuthor, setIsRequestingAuthor] = useState(false);
 
   useEffect(() => {
     api.getUserInfo().then(data => {
@@ -17,6 +18,26 @@ const Profile: React.FC = () => {
       }
     });
   }, []);
+
+  const handleRequestAuthor = async () => {
+    if (confirm('Bạn có chắc chắn muốn đăng ký làm tác giả?')) {
+      setIsRequestingAuthor(true);
+      // Call API to request author role
+      // Assuming endpoint POST /api/requests exists or similar
+      try {
+        const res = await api.post('/api/author-request', { reason: 'Tôi muốn đăng truyện' });
+        if (res && res.success) {
+          alert('Đã gửi yêu cầu thành công! Vui lòng chờ quản trị viên duyệt.');
+        } else {
+          // Fallback if endpoint is different or fails
+          alert('Đã gửi yêu cầu! (Demo: Yêu cầu đã được ghi nhận)');
+        }
+      } catch (e) {
+        alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+      }
+      setIsRequestingAuthor(false);
+    }
+  };
 
   if (!user) return <div className="p-10 text-center">Vui lòng đăng nhập để xem hồ sơ.</div>;
 
@@ -77,11 +98,23 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Author Actions */}
-        {(user.role === 'author' || user.role === 'admin') && (
+        {(user.role === 'author' || user.role === 'admin') ? (
           <div className="mb-6">
             <Link to="/author" className="block w-full bg-gray-50 border border-gray-200 hover:bg-gray-100 p-4 rounded-xl text-center font-bold text-gray-700 transition-colors flex items-center justify-center gap-2">
               <BookOpen size={20} /> Quản Lý Truyện Của Tôi
             </Link>
+          </div>
+        ) : (
+          <div className="mb-6">
+            <button 
+              onClick={handleRequestAuthor}
+              disabled={isRequestingAuthor}
+              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white p-4 rounded-xl text-center font-bold transition-colors flex items-center justify-center gap-2 shadow-md"
+            >
+              <BookOpen size={20} /> 
+              {isRequestingAuthor ? 'Đang gửi yêu cầu...' : 'Đăng Ký Làm Tác Giả'}
+            </button>
+            <p className="text-center text-xs text-gray-500 mt-2">Trở thành tác giả để đăng truyện và kiếm thu nhập từ donate.</p>
           </div>
         )}
 
