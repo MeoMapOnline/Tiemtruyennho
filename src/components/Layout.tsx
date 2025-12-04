@@ -19,8 +19,13 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+import LoginModal from './LoginModal';
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const location = useLocation();
 
@@ -64,13 +69,49 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-gray-100 rounded-full relative group">
-              <Search size={24} className="text-gray-600" />
-            </button>
-            <button className="p-2 hover:bg-gray-100 rounded-full relative group">
-              <Bell size={24} className="text-gray-600" />
-              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <div className="relative">
+              {isSearchOpen && (
+                <input 
+                  type="text" 
+                  placeholder="Tìm truyện..." 
+                  className="absolute right-10 top-1/2 -translate-y-1/2 w-48 sm:w-64 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-lg"
+                  autoFocus
+                  onBlur={() => setTimeout(() => setIsSearchOpen(false), 200)}
+                />
+              )}
+              <button 
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className={`p-2 rounded-full relative group transition-colors ${isSearchOpen ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-100 text-gray-600'}`}
+              >
+                <Search size={24} />
+              </button>
+            </div>
+
+            <div className="relative">
+              <button 
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className={`p-2 rounded-full relative group transition-colors ${isNotificationsOpen ? 'bg-indigo-50 text-indigo-600' : 'hover:bg-gray-100 text-gray-600'}`}
+              >
+                <Bell size={24} />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+              
+              {isNotificationsOpen && (
+                <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-gray-50 font-bold text-gray-700">Thông báo</div>
+                  <div className="max-h-64 overflow-y-auto">
+                    <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0">
+                      <p className="text-sm text-gray-800 font-medium">Chào mừng bạn đến với TiệmTruyệnNhỏ!</p>
+                      <p className="text-xs text-gray-500 mt-1">Vừa xong</p>
+                    </div>
+                    <div className="px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                      <p className="text-sm text-gray-800">Hệ thống đang bảo trì tính năng nạp tiền.</p>
+                      <p className="text-xs text-gray-500 mt-1">1 giờ trước</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             
             {user ? (
               <Link to="/profile" className="flex items-center gap-2 ml-2 hover:bg-gray-50 p-1 pr-3 rounded-full border border-transparent hover:border-gray-200 transition-all">
@@ -80,7 +121,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <span className="text-sm font-medium text-gray-700 hidden md:block">{user.display_name || 'User'}</span>
               </Link>
             ) : (
-              <button className="hidden md:flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors text-sm font-medium">
+              <button 
+                onClick={() => setIsLoginModalOpen(true)}
+                className="hidden md:flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors text-sm font-medium"
+              >
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-4 h-4" />
                 Đăng nhập
               </button>
@@ -88,6 +132,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </header>
+
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 
       <div className="flex flex-1 container mx-auto px-4 py-6 gap-6 relative">
         {/* Sidebar Overlay for Mobile */}
@@ -135,7 +181,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="my-4 border-t border-gray-200 lg:hidden"></div>
               
               {!user && (
-                <button className="flex lg:hidden items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 w-full">
+                <button 
+                  onClick={() => { setIsSidebarOpen(false); setIsLoginModalOpen(true); }}
+                  className="flex lg:hidden items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 w-full"
+                >
                   <LogIn size={20} />
                   <span className="font-medium">Đăng nhập / Đăng ký</span>
                 </button>
