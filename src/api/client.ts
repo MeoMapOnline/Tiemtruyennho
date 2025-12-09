@@ -1,5 +1,4 @@
-const BASE_URL = https://tiemnhobackend.matoralie0789.workers.dev
-
+const BASE_URL = 'https://tiemnhobackend.matoralie0789.workers.dev';
 export const api = {
   async get(endpoint: string) {
     try {
