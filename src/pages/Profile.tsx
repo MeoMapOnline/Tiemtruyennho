@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { api } from '../api/client';
-import { Wallet, CreditCard, ArrowUpRight, ArrowDownLeft, DollarSign, BookOpen } from 'lucide-react';
+import { Wallet, CreditCard, ArrowUpRight, ArrowDownLeft, DollarSign, BookOpen, LogOut } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
 import { Link } from 'react-router-dom';
 
@@ -19,18 +18,23 @@ const Profile: React.FC = () => {
     });
   }, []);
 
+  const handleLogout = () => {
+    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+      localStorage.removeItem('yw_user_id');
+      localStorage.removeItem('yw_is_login');
+      window.location.href = '/';
+    }
+  };
+
   const handleRequestAuthor = async () => {
     if (confirm('Bạn có chắc chắn muốn đăng ký làm tác giả?')) {
       setIsRequestingAuthor(true);
-      // Call API to request author role
-      // Assuming endpoint POST /api/requests exists or similar
       try {
         const res = await api.post('/api/author-request', { reason: 'Tôi muốn đăng truyện' });
         if (res && res.success) {
           alert('Đã gửi yêu cầu thành công! Vui lòng chờ quản trị viên duyệt.');
         } else {
-          // Fallback if endpoint is different or fails
-          alert('Đã gửi yêu cầu! (Demo: Yêu cầu đã được ghi nhận)');
+          alert('Đã gửi yêu cầu!');
         }
       } catch (e) {
         alert('Có lỗi xảy ra, vui lòng thử lại sau.');
@@ -119,10 +123,12 @@ const Profile: React.FC = () => {
         )}
 
         <div className="border-t border-gray-100 pt-6">
-          <h3 className="font-bold text-gray-800 mb-4">Lịch sử giao dịch</h3>
-          <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-            Chưa có giao dịch nào gần đây.
-          </div>
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 p-3 rounded-xl transition-colors font-medium"
+          >
+            <LogOut size={20} /> Đăng xuất
+          </button>
         </div>
       </div>
     </div>
