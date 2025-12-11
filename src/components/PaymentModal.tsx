@@ -6,7 +6,7 @@ import { api } from '../api/client';
 // import momoQr from '../assets/momo-qr.jpeg'; 
 
 // Dùng link ảnh placeholder hoặc link ảnh QR của bạn
-const MOMO_QR_URL = "https://tiemtruyennho.blogspot.com/p/vietcombank-1027269399-luu-y-nho-nap-xu.html"; 
+const MOMO_QR_URL = "https://ibb.co/k6gfsCCD"><img src="https://i.bị.co/gFMpLKKW/IMG-0776.jpg" alt="IMG-0776" border="0"></a>"; 
 
 interface PaymentModalProps {
   isOpen: boolean;
