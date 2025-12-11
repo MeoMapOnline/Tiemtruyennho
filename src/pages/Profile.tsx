@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api/client';
-import { Wallet, CreditCard, ArrowUpRight, ArrowDownLeft, DollarSign, BookOpen, LogOut } from 'lucide-react';
+import { Wallet, DollarSign, BookOpen, LogOut, Shield, Key, Copy, Check, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
 import { Link } from 'react-router-dom';
 
@@ -8,7 +8,7 @@ const Profile: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentType, setPaymentType] = useState<'deposit' | 'withdraw'>('deposit');
-  const [isRequestingAuthor, setIsRequestingAuthor] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     api.getUserInfo().then(data => {
@@ -26,20 +26,12 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleRequestAuthor = async () => {
-    if (confirm('Bạn có chắc chắn muốn đăng ký làm tác giả?')) {
-      setIsRequestingAuthor(true);
-      try {
-        const res = await api.post('/api/author-request', { reason: 'Tôi muốn đăng truyện' });
-        if (res && res.success) {
-          alert('Đã gửi yêu cầu thành công! Vui lòng chờ quản trị viên duyệt.');
-        } else {
-          alert('Đã gửi yêu cầu!');
-        }
-      } catch (e) {
-        alert('Có lỗi xảy ra, vui lòng thử lại sau.');
-      }
-      setIsRequestingAuthor(false);
+  const handleCopyId = () => {
+    if (user?.encrypted_yw_id) {
+      navigator.clipboard.writeText(user.encrypted_yw_id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      alert('Đã copy Mã Khôi Phục!');
     }
   };
 
@@ -47,92 +39,49 @@ const Profile: React.FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <PaymentModal 
-        isOpen={showPayment} 
-        onClose={() => setShowPayment(false)} 
-        type={paymentType} 
-      />
-
+      <PaymentModal isOpen={showPayment} onClose={() => setShowPayment(false)} type={paymentType} />
       <div className="bg-white rounded-2xl shadow-sm p-8 mb-6">
+        {/* KHUNG MÃ KHÔI PHỤC */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-8">
+          <h3 className="font-bold text-yellow-800 mb-2 flex items-center gap-2"><Key size={20} /> Mã Khôi Phục Tài Khoản</h3>
+          <p className="text-sm text-yellow-700 mb-3">Lưu mã này để đăng nhập lại khi đổi máy:</p>
+          <div className="flex gap-2">
+            <code className="flex-1 bg-white border border-yellow-300 p-3 rounded-lg font-mono text-sm break-all text-gray-600">{user.encrypted_yw_id}</code>
+            <button onClick={handleCopyId} className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-4 rounded-lg font-bold flex items-center gap-2">{copied ? <Check size={18} /> : <Copy size={18} />} Copy</button>
+          </div>
+        </div>
+
         <div className="flex items-center gap-4 mb-8">
           <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden">
              {user.photo_url ? <img src={user.photo_url} alt="Avatar" /> : <div className="w-full h-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xl">{user.display_name?.[0] || 'U'}</div>}
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{user.display_name || 'Người dùng'}</h1>
-            <p className="text-gray-500 text-sm">ID: {user.encrypted_yw_id?.substring(0, 8)}...</p>
             <span className="inline-block mt-1 px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-bold rounded uppercase">{user.role}</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Balance Wallet */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-indigo-100 text-sm font-medium">Số dư đọc truyện</span>
-              <Wallet size={20} className="text-indigo-200" />
-            </div>
-            <div className="text-3xl font-bold mb-6">{user.balance?.toLocaleString()} <span className="text-lg font-normal opacity-80">Xu</span></div>
-            
-            <button 
-              onClick={() => { setPaymentType('deposit'); setShowPayment(true); }}
-              className="w-full bg-white/20 hover:bg-white/30 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
-            >
-              <ArrowDownLeft size={18} /> Nạp Xu
-            </button>
-          </div>
-
-          {/* Earnings Wallet (For Authors) */}
-          {(user.role === 'author' || user.role === 'admin') && (
-            <div className="bg-gradient-to-r from-green-600 to-teal-600 rounded-xl p-6 text-white shadow-lg">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-green-100 text-sm font-medium">Thu nhập tác giả</span>
-                <DollarSign size={20} className="text-green-200" />
-              </div>
-              <div className="text-3xl font-bold mb-6">{user.earnings?.toLocaleString()} <span className="text-lg font-normal opacity-80">Xu</span></div>
-              
-              <button 
-                onClick={() => { setPaymentType('withdraw'); setShowPayment(true); }}
-                className="w-full bg-white/20 hover:bg-white/30 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"
-              >
-                <ArrowUpRight size={18} /> Rút Tiền
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Author Actions */}
-        {(user.role === 'author' || user.role === 'admin') ? (
+        {user.role === 'admin' && (
           <div className="mb-6">
-            <Link to="/author" className="block w-full bg-gray-50 border border-gray-200 hover:bg-gray-100 p-4 rounded-xl text-center font-bold text-gray-700 transition-colors flex items-center justify-center gap-2">
-              <BookOpen size={20} /> Quản Lý Truyện Của Tôi
+            <Link to="/admin" className="block w-full bg-red-50 border border-red-200 hover:bg-red-100 p-4 rounded-xl text-center font-bold text-red-700 transition-colors flex items-center justify-center gap-2">
+              <Shield size={20} /> Truy cập Trang Quản Trị
             </Link>
-          </div>
-        ) : (
-          <div className="mb-6">
-            <button 
-              onClick={handleRequestAuthor}
-              disabled={isRequestingAuthor}
-              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white p-4 rounded-xl text-center font-bold transition-colors flex items-center justify-center gap-2 shadow-md"
-            >
-              <BookOpen size={20} /> 
-              {isRequestingAuthor ? 'Đang gửi yêu cầu...' : 'Đăng Ký Làm Tác Giả'}
-            </button>
-            <p className="text-center text-xs text-gray-500 mt-2">Trở thành tác giả để đăng truyện và kiếm thu nhập từ donate.</p>
           </div>
         )}
 
-        <div className="border-t border-gray-100 pt-6">
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-50 p-3 rounded-xl transition-colors font-medium"
-          >
-            <LogOut size={20} /> Đăng xuất
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+            <div className="flex items-center justify-between mb-2"><span className="text-indigo-100 text-sm font-medium">Số dư đọc truyện</span><Wallet size={20} className="text-indigo-200" /></div>
+            <div className="text-3xl font-bold mb-6">{user.balance?.toLocaleString()} <span className="text-lg font-normal opacity-80">Xu</span></div>
+            <button onClick={() => { setPaymentType('deposit'); setShowPayment(true); }} className="w-full bg-white/20 hover:bg-white/30 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors"><ArrowDownLeft size={18} /> Nạp Xu</button>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-100 pt-6 mt-6">
+          <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 p-3 rounded-xl transition-colors font-medium"><LogOut size={20} /> Đăng xuất</button>
         </div>
       </div>
     </div>
   );
 };
-
 export default Profile;
