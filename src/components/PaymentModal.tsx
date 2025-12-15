@@ -2,12 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, CreditCard, Wallet, Lock, Copy, Check } from 'lucide-react';
 import { api } from '../api/client';
 
-// ĐÃ SỬA: Không import ảnh từ file nội bộ nữa để tránh lỗi build
-// import momoQr from '../assets/momo-qr.jpeg'; 
-
-// Dùng link ảnh placeholder hoặc link ảnh QR của bạn
-const MOMO_QR_URL = "https://ibb.co/k6gfsCCD"><img src="https://i.bị.co/gFMpLKKW/IMG-0776.jpg" alt="IMG-0776" border="0"></a>"; 
-
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -83,73 +77,91 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, type, amou
           {type === 'unlock' && <><Lock className="text-indigo-600" /> Mở Khóa Chương</>}
         </h2>
 
-        <div className="space-y-4">
-          {type === 'deposit' && (
-            <>
-              <div className="flex justify-center mb-4">
-                <div className="relative group">
-                  {/* Sử dụng URL ảnh thay vì biến import */}
-                  <img src={MOMO_QR_URL} alt="MOMO QR" className="w-48 h-48 object-contain border-2 border-pink-500 rounded-xl" />
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-pink-600 text-white text-xs px-2 py-0.5 rounded-full">
-                    Quét mã để nạp
-                  </div>
-                </div>
+        {type === 'deposit' && (
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-lg text-center">
+              <p className="text-sm text-gray-500 mb-2">Quét mã QR để nạp tiền</p>
+              <div className="flex justify-center mb-2">
+                 {/* Thay link ảnh QR của bạn vào đây nếu cần */}
+                 <img src="/momo-qr.jpeg" alt="MOMO QR" className="w-48 h-48 object-contain border rounded" />
               </div>
+              <p className="text-xs text-gray-400">Hoặc chuyển khoản thủ công</p>
+            </div>
 
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Nhập số tiền muốn nạp (1 Xu = 1 VND):</p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nội dung chuyển khoản (Bắt buộc)</label>
+              <div className="flex gap-2">
                 <input 
-                  type="number" 
-                  value={inputAmount}
-                  onChange={(e) => setInputAmount(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-lg"
+                  type="text" 
+                  value={transferContent} 
+                  readOnly 
+                  className="flex-1 border rounded-lg px-3 py-2 bg-gray-100 font-mono font-bold text-indigo-600"
                 />
+                <button 
+                  onClick={() => handleCopy(transferContent)}
+                  className="p-2 text-gray-500 hover:text-indigo-600 border rounded-lg"
+                >
+                  {copied ? <Check size={20} /> : <Copy size={20} />}
+                </button>
               </div>
+            </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600 border border-gray-200">
-                <p className="font-bold mb-2 text-gray-800">Thông tin chuyển khoản bắt buộc:</p>
-                <div className="flex items-center justify-between bg-white p-2 rounded border border-gray-200 mb-2">
-                  <span className="text-gray-500">Nội dung:</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-indigo-600">{transferContent}</span>
-                    <button onClick={() => handleCopy(transferContent)} className="text-gray-400 hover:text-indigo-600">
-                      {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                </div>
-                <p className="text-xs text-red-500">* Vui lòng nhập đúng nội dung để được cộng Xu nhanh nhất.</p>
-              </div>
-            </>
-          )}
-
-          {type === 'withdraw' && (
-            <>
-              <p className="text-sm text-gray-600">Số tiền rút:</p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Số tiền muốn nạp</label>
               <input 
                 type="number" 
                 value={inputAmount}
                 onChange={(e) => setInputAmount(Number(e.target.value))}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                step="10000"
+                min="10000"
               />
-              <p className="text-sm text-gray-600">Số ví MOMO nhận tiền:</p>
+            </div>
+            
+            <button 
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+            >
+              {loading ? 'Đang xử lý...' : 'Xác Nhận Đã Chuyển'}
+            </button>
+          </div>
+        )}
+
+        {type === 'withdraw' && (
+          <div className="space-y-4">
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <p className="text-sm text-yellow-800">Số dư khả dụng: {user?.earnings?.toLocaleString()} xu</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Số ví MOMO / Ngân hàng</label>
               <input 
                 type="text" 
                 value={walletNumber}
                 onChange={(e) => setWalletNumber(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
-                placeholder="09xx..."
+                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                placeholder="0987..."
               />
-            </>
-          )}
-
-          <button 
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 shadow-lg shadow-indigo-200"
-          >
-            {loading ? 'Đang xử lý...' : (type === 'deposit' ? 'Tôi Đã Chuyển Tiền' : 'Xác Nhận')}
-          </button>
-        </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Số tiền rút</label>
+              <input 
+                type="number" 
+                value={inputAmount}
+                onChange={(e) => setInputAmount(Number(e.target.value))}
+                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
+                max={user?.earnings}
+              />
+            </div>
+            <button 
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium hover:bg-orange-700 disabled:opacity-50"
+            >
+              {loading ? 'Đang xử lý...' : 'Gửi Yêu Cầu Rút'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
