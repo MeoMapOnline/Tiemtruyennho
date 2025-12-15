@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// Fixed PaymentModal
 import { X, CreditCard, Wallet, Lock, Copy, Check } from 'lucide-react';
 import { api } from '../api/client';
 
@@ -82,7 +83,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, type, amou
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <p className="text-sm text-gray-500 mb-2">Quét mã QR để nạp tiền</p>
               <div className="flex justify-center mb-2">
-                 {/* Thay link ảnh QR của bạn vào đây nếu cần */}
                  <img src="/momo-qr.jpeg" alt="MOMO QR" className="w-48 h-48 object-contain border rounded" />
               </div>
               <p className="text-xs text-gray-400">Hoặc chuyển khoản thủ công</p>
